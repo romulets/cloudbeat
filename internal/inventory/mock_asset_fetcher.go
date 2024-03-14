@@ -39,8 +39,17 @@ func (_m *MockAssetFetcher) EXPECT() *MockAssetFetcher_Expecter {
 }
 
 // Fetch provides a mock function with given fields: ctx, assetChannel
-func (_m *MockAssetFetcher) Fetch(ctx context.Context, assetChannel chan<- AssetEvent) {
-	_m.Called(ctx, assetChannel)
+func (_m *MockAssetFetcher) Fetch(ctx context.Context, assetChannel chan<- AssetEvent) error {
+	ret := _m.Called(ctx, assetChannel)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, chan<- AssetEvent) error); ok {
+		r0 = rf(ctx, assetChannel)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // MockAssetFetcher_Fetch_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Fetch'
@@ -62,12 +71,12 @@ func (_c *MockAssetFetcher_Fetch_Call) Run(run func(ctx context.Context, assetCh
 	return _c
 }
 
-func (_c *MockAssetFetcher_Fetch_Call) Return() *MockAssetFetcher_Fetch_Call {
-	_c.Call.Return()
+func (_c *MockAssetFetcher_Fetch_Call) Return(_a0 error) *MockAssetFetcher_Fetch_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockAssetFetcher_Fetch_Call) RunAndReturn(run func(context.Context, chan<- AssetEvent)) *MockAssetFetcher_Fetch_Call {
+func (_c *MockAssetFetcher_Fetch_Call) RunAndReturn(run func(context.Context, chan<- AssetEvent) error) *MockAssetFetcher_Fetch_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -19,6 +19,7 @@ package aws
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/elastic/elastic-agent-libs/logp"
@@ -43,7 +44,7 @@ var ec2Classification = inventory.AssetClassification{
 	Category:    inventory.CategoryInfrastructure,
 	SubCategory: inventory.SubCategoryCompute,
 	Type:        inventory.TypeVirtualMachine,
-	SubStype:    inventory.SubTypeEC2,
+	SubType:     inventory.SubTypeEC2,
 }
 
 func newEc2Fetcher(logger *logp.Logger, identity *cloud.Identity, cfg aws.Config) inventory.AssetFetcher {
@@ -54,11 +55,10 @@ func newEc2Fetcher(logger *logp.Logger, identity *cloud.Identity, cfg aws.Config
 	}
 }
 
-func (e *Ec2Fetcher) Fetch(ctx context.Context, assetChannel chan<- inventory.AssetEvent) {
+func (e *Ec2Fetcher) Fetch(ctx context.Context, assetChannel chan<- inventory.AssetEvent) error {
 	instances, err := e.provider.DescribeInstances(ctx)
 	if err != nil {
-		e.logger.Errorf("Could not list ec2 instances (%v)", err)
-		return
+		return fmt.Errorf("could not list ec2 instances (%w)", err)
 	}
 
 	for _, instance := range instances {
@@ -94,6 +94,9 @@ func (e *Ec2Fetcher) Fetch(ctx context.Context, assetChannel chan<- inventory.As
 				Provider: inventory.AwsCloudProvider,
 				Region:   instance.Region,
 			}),
+			inventory.WithMetadata(inventory.AssetMetadata{
+				SourceAPI: "ec2_instance",
+			}),
 			inventory.WithHost(inventory.AssetHost{
 				Architecture:    string(instance.Architecture),
 				ImageId:         instance.ImageId,
@@ -113,4 +116,6 @@ func (e *Ec2Fetcher) Fetch(ctx context.Context, assetChannel chan<- inventory.As
 			}),
 		)
 	}
+
+	return nil
 }

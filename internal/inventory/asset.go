@@ -26,7 +26,6 @@ import (
 type assetCategory string
 type assetSubCategory string
 type assetType string
-type assetSubType string
 type assetCloudProvider string
 
 const (
@@ -36,18 +35,19 @@ const (
 
 	TypeVirtualMachine assetType = "virtual-machine"
 
-	SubTypeEC2 assetSubType = "ec2"
+	SubTypeEC2 string = "ec2"
 
 	AwsCloudProvider assetCloudProvider = "aws"
 )
 
 // AssetEvent holds the whole asset
 type AssetEvent struct {
-	Asset   Asset
-	Network *AssetNetwork
-	Cloud   *AssetCloud
-	Host    *AssetHost
-	IAM     *AssetIAM
+	Asset    Asset
+	Network  *AssetNetwork
+	Cloud    *AssetCloud
+	Host     *AssetHost
+	IAM      *AssetIAM
+	Metadata *AssetMetadata
 }
 
 // AssetClassification holds the taxonomy of an asset
@@ -55,7 +55,7 @@ type AssetClassification struct {
 	Category    assetCategory    `json:"category"`
 	SubCategory assetSubCategory `json:"subCategory"`
 	Type        assetType        `json:"type"`
-	SubStype    assetSubType     `json:"subStype"`
+	SubType     string           `json:"subType"`
 }
 
 // Asset contains the identifiers of the asset
@@ -81,8 +81,9 @@ type AssetNetwork struct {
 
 // AssetCloud contains information about the cloud provider
 type AssetCloud struct {
-	Provider assetCloudProvider `json:"provider"`
-	Region   string             `json:"region"`
+	Provider  assetCloudProvider `json:"provider"`
+	Region    string             `json:"region"`
+	AccountId string             `json:"accountId"`
 }
 
 // AssetHost contains information of the asset in case it is a host
@@ -94,9 +95,15 @@ type AssetHost struct {
 	PlatformDetails *string `json:"platformDetails"`
 }
 
+// AssetIAM contains Identity and Authorization Management information
 type AssetIAM struct {
 	Id  *string `json:"id"`
 	Arn *string `json:"arn"`
+}
+
+// AssetMetadata contains metada related to the asset
+type AssetMetadata struct {
+	SourceAPI string `json:"sourceAPI"`
 }
 
 // AssetEnricher functional builder function
@@ -122,6 +129,12 @@ func NewAssetEvent(c AssetClassification, id string, name string, enrichers ...A
 func WithRawAsset(raw any) AssetEnricher {
 	return func(a *AssetEvent) {
 		a.Asset.Raw = &raw
+	}
+}
+
+func WithMetadata(metadata AssetMetadata) AssetEnricher {
+	return func(a *AssetEvent) {
+		a.Metadata = &metadata
 	}
 }
 
@@ -161,7 +174,7 @@ func EmptyEnricher() AssetEnricher {
 
 func generateUniqueId(c AssetClassification, resourceId string) string {
 	hasher := sha256.New()
-	toBeHashed := fmt.Sprintf("%s-%s-%s-%s-%s", resourceId, c.Category, c.SubCategory, c.Type, c.SubStype)
+	toBeHashed := fmt.Sprintf("%s-%s-%s-%s-%s", resourceId, c.Category, c.SubCategory, c.Type, c.SubType)
 	hasher.Write([]byte(toBeHashed)) //nolint:revive
 	hash := hasher.Sum(nil)
 	encoded := base64.StdEncoding.EncodeToString(hash)

@@ -79,7 +79,7 @@ type FSResource struct {
 	ElasticCommon FileCommonData
 }
 
-// FileSystemFetcher implement the Fetcher interface
+// FileSystemFetcher implement the SourceAPI interface
 // The FileSystemFetcher meant to fetch file/directories from the file system and ship it
 // to the Cloudbeat
 type FileSystemFetcher struct {

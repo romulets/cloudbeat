@@ -27,6 +27,8 @@ import (
 
 func Fetchers(logger *logp.Logger, identity *cloud.Identity, cfg aws.Config) []inventory.AssetFetcher {
 	return []inventory.AssetFetcher{
-		newEc2Fetcher(logger, identity, cfg),
+		// newEc2Fetcher(logger, identity, cfg),
+		//NewResourceTagsFetcher(logger, cfg),
+		NewResourceExplorerFetcher(logger, cfg),
 	}
 }

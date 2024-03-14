@@ -40,7 +40,7 @@ type AssetInventory struct {
 }
 
 type AssetFetcher interface {
-	Fetch(ctx context.Context, assetChannel chan<- AssetEvent)
+	Fetch(ctx context.Context, assetChannel chan<- AssetEvent) error
 }
 
 type AssetPublisher interface {
@@ -55,7 +55,7 @@ func NewAssetInventory(logger *logp.Logger, fetchers []AssetFetcher, publisher A
 		publisher: publisher,
 		// move to a configuration parameter
 		bufferFlushInterval: 15 * time.Second,
-		bufferMaxSize:       100,
+		bufferMaxSize:       1600,
 		assetCh:             make(chan AssetEvent),
 		now:                 now,
 	}
@@ -64,7 +64,10 @@ func NewAssetInventory(logger *logp.Logger, fetchers []AssetFetcher, publisher A
 func (a *AssetInventory) Run(ctx context.Context) {
 	for _, fetcher := range a.fetchers {
 		go func(fetcher AssetFetcher) {
-			fetcher.Fetch(ctx, a.assetCh)
+			err := fetcher.Fetch(ctx, a.assetCh)
+			if err != nil {
+				a.logger.Errorf("Problem on fetching data: %v", err)
+			}
 		}(fetcher)
 	}
 
@@ -105,11 +108,12 @@ func (a *AssetInventory) publish(assets []AssetEvent) {
 			Meta:      mapstr.M{libevents.FieldMetaIndex: generateIndex(e.Asset)},
 			Timestamp: a.now(),
 			Fields: mapstr.M{
-				"asset":   e.Asset,
-				"cloud":   e.Cloud,
-				"host":    e.Host,
-				"network": e.Network,
-				"iam":     e.IAM,
+				"asset":    e.Asset,
+				"cloud":    e.Cloud,
+				"host":     e.Host,
+				"network":  e.Network,
+				"iam":      e.IAM,
+				"metadata": e.Metadata,
 			},
 		}
 	})
@@ -118,7 +122,7 @@ func (a *AssetInventory) publish(assets []AssetEvent) {
 }
 
 func generateIndex(a Asset) string {
-	return fmt.Sprintf("asset_inventory_%s_%s_%s_%s", a.Category, a.SubCategory, a.Type, a.SubStype)
+	return fmt.Sprintf("asset_inventory_%s_%s_%s_%s", a.Category, a.SubCategory, a.Type, a.SubType)
 }
 
 func (a *AssetInventory) Stop() {

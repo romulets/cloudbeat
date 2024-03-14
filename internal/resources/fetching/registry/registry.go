@@ -115,6 +115,6 @@ func (r *registry) Update() {
 func (r *registry) Stop() {
 	for key, registered := range r.reg {
 		registered.Fetcher.Stop()
-		r.log.Infof("Fetcher for key %q stopped", key)
+		r.log.Infof("SourceAPI for key %q stopped", key)
 	}
 }
