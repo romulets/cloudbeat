@@ -27,17 +27,17 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/accessanalyzer v1.36.2
 	github.com/aws/aws-sdk-go-v2/service/autoscaling v1.51.1
 	github.com/aws/aws-sdk-go-v2/service/cloudformation v1.56.1
-	github.com/aws/aws-sdk-go-v2/service/cloudtrail v1.46.2
+	github.com/aws/aws-sdk-go-v2/service/cloudtrail v1.46.3
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.43.3
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.45.0
 	github.com/aws/aws-sdk-go-v2/service/configservice v1.51.1
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.195.0
+	github.com/aws/aws-sdk-go-v2/service/ec2 v1.196.0
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.36.7
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.28.6
 	github.com/aws/aws-sdk-go-v2/service/iam v1.38.2
 	github.com/aws/aws-sdk-go-v2/service/kms v1.37.7
 	github.com/aws/aws-sdk-go-v2/service/lambda v1.69.1
-	github.com/aws/aws-sdk-go-v2/service/organizations v1.36.0
+	github.com/aws/aws-sdk-go-v2/service/organizations v1.36.1
 	github.com/aws/aws-sdk-go-v2/service/rds v1.92.0
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.71.0
 	github.com/aws/aws-sdk-go-v2/service/s3control v1.52.0
